@@ -9,7 +9,7 @@ function Dashboard() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3002/subscriptions")
+    axios.get("https://subscription-dashboard-izic.onrender.com/subscriptions")
       .then(res => setSubs(res.data));
   }, []);
 

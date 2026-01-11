@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+const API_URL = "https://subscription-dashboard-izic.onrender.com/subscriptions";
+
 function Subscriptions() {
   const [subs, setSubs] = useState([]);
   const [mode, setMode] = useState(null); // add | view | edit | null
@@ -17,10 +19,12 @@ function Subscriptions() {
 
   const [formData, setFormData] = useState(emptyForm);
 
+  /* ---------- FETCH ---------- */
   const fetchSubs = () => {
     axios
-      .get("http://localhost:3002/subscriptions")
-      .then(res => setSubs(res.data));
+      .get(API_URL)
+      .then(res => setSubs(res.data))
+      .catch(err => console.error("Fetch error:", err));
   };
 
   useEffect(() => {
@@ -28,7 +32,6 @@ function Subscriptions() {
   }, []);
 
   /* ---------- ACTIONS ---------- */
-
   const openAdd = () => {
     setFormData(emptyForm);
     setMode("add");
@@ -52,8 +55,9 @@ function Subscriptions() {
   const deleteSub = id => {
     if (!window.confirm("Delete this subscription?")) return;
     axios
-      .delete(`http://localhost:3002/subscriptions/${id}`)
-      .then(fetchSubs);
+      .delete(`${API_URL}/${id}`)
+      .then(fetchSubs)
+      .catch(err => console.error("Delete error:", err));
   };
 
   const handleChange = e => {
@@ -64,26 +68,27 @@ function Subscriptions() {
     e.preventDefault();
 
     if (mode === "add") {
-      axios.post("http://localhost:3002/subscriptions", formData)
+      axios
+        .post(API_URL, formData)
         .then(() => {
           closeForm();
           fetchSubs();
-        });
+        })
+        .catch(err => console.error("Add error:", err));
     }
 
     if (mode === "edit") {
-      axios.put(
-        `http://localhost:3002/subscriptions/${formData.id}`,
-        formData
-      ).then(() => {
-        closeForm();
-        fetchSubs();
-      });
+      axios
+        .put(`${API_URL}/${formData.id}`, formData)
+        .then(() => {
+          closeForm();
+          fetchSubs();
+        })
+        .catch(err => console.error("Update error:", err));
     }
   };
 
   /* ---------- UI ---------- */
-
   return (
     <div className="page">
       <div className="header">
@@ -116,18 +121,33 @@ function Subscriptions() {
                 <td>₹ {s.price}</td>
                 <td>{s.renewalDate}</td>
                 <td>
-                  <span className={s.status === "Active" ? "status-active" : "status-expired"}>
+                  <span
+                    className={
+                      s.status === "Active"
+                        ? "status-active"
+                        : "status-expired"
+                    }
+                  >
                     {s.status}
                   </span>
                 </td>
                 <td>
-                  <button className="btn btn-sm btn-outline-secondary me-1" onClick={() => openView(s)}>
+                  <button
+                    className="btn btn-sm btn-outline-secondary me-1"
+                    onClick={() => openView(s)}
+                  >
                     View
                   </button>
-                  <button className="btn btn-sm btn-outline-primary me-1" onClick={() => openEdit(s)}>
+                  <button
+                    className="btn btn-sm btn-outline-primary me-1"
+                    onClick={() => openEdit(s)}
+                  >
                     Edit
                   </button>
-                  <button className="btn btn-sm btn-outline-danger" onClick={() => deleteSub(s.id)}>
+                  <button
+                    className="btn btn-sm btn-outline-danger"
+                    onClick={() => deleteSub(s.id)}
+                  >
                     Delete
                   </button>
                 </td>
@@ -197,7 +217,11 @@ function Subscriptions() {
               </div>
 
               <div className="d-flex justify-content-between">
-                <button type="button" className="btn btn-secondary" onClick={closeForm}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={closeForm}
+                >
                   Close
                 </button>
 
