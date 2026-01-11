@@ -1,24 +1,26 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const API_URL = "https://subscription-dashboard-izic.onrender.com/subscriptions";
+// ✅ ROOT API (Render)
+const API_URL = "https://subscription-dashboard-izic.onrender.com";
 
 function Dashboard() {
   const [subs, setSubs] = useState([]);
 
   useEffect(() => {
     axios
-      .get(API_URL)
-      .then(res => setSubs(res.data))
+      .get(`${API_URL}/subscriptions`)
+      .then(res => setSubs(res.data || []))
       .catch(err => console.error("Dashboard fetch error:", err));
   }, []);
 
   const today = new Date();
 
-  /* ===== BASIC STATS ===== */
+  /* ===== FILTERS ===== */
   const activeSubs = subs.filter(s => s.status === "Active");
   const expiredSubs = subs.filter(s => s.status === "Expired");
 
+  /* ===== SPEND ===== */
   const totalSpend = activeSubs.reduce(
     (sum, s) => sum + Number(s.price || 0),
     0
@@ -32,18 +34,22 @@ function Dashboard() {
   /* ===== EXPIRING SOON ===== */
   const expiringSoon = activeSubs
     .map(s => {
+      const renewal = new Date(s.renewalDate);
+      if (isNaN(renewal)) return null;
+
       const daysLeft =
-        (new Date(s.renewalDate) - today) / (1000 * 60 * 60 * 24);
+        (renewal - today) / (1000 * 60 * 60 * 24);
+
       return { ...s, daysLeft: Math.ceil(daysLeft) };
     })
-    .filter(s => s.daysLeft >= 0 && s.daysLeft <= 7)
+    .filter(s => s && s.daysLeft >= 0 && s.daysLeft <= 7)
     .sort((a, b) => a.daysLeft - b.daysLeft);
 
   /* ===== CATEGORY USAGE ===== */
   const categoryUsage = {};
   activeSubs.forEach(s => {
     categoryUsage[s.category] =
-      (categoryUsage[s.category] || 0) + Number(s.price);
+      (categoryUsage[s.category] || 0) + Number(s.price || 0);
   });
 
   return (
@@ -60,7 +66,10 @@ function Dashboard() {
       <div className="cards">
         <Stat title="Active Subscriptions" value={activeSubs.length} />
         <Stat title="Monthly Spend" value={`₹ ${totalSpend}`} />
-        <Stat title="Average Spend / Subscription" value={`₹ ${averageSpend}`} />
+        <Stat
+          title="Average Spend / Subscription"
+          value={`₹ ${averageSpend}`}
+        />
         <Stat title="Expired Subscriptions" value={expiredSubs.length} />
       </div>
 
@@ -73,10 +82,10 @@ function Dashboard() {
             <p className="muted">No active subscriptions</p>
           ) : (
             Object.entries(categoryUsage).map(([category, amount]) => {
-              const percentage = Math.min(
-                Math.round((amount / totalSpend) * 100),
-                100
-              );
+              const percentage =
+                totalSpend > 0
+                  ? Math.round((amount / totalSpend) * 100)
+                  : 0;
 
               return (
                 <div key={category} className="mb-3">
