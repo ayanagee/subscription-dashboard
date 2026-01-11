@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-
-const API_URL = "https://subscription-dashboard-izic.onrender.com/subscriptions";
+import api from "../api";
 
 function Subscriptions() {
   const [subs, setSubs] = useState([]);
@@ -19,19 +17,22 @@ function Subscriptions() {
 
   const [formData, setFormData] = useState(emptyForm);
 
-  /* ---------- FETCH ---------- */
-  const fetchSubs = () => {
-    axios
-      .get(API_URL)
-      .then(res => setSubs(res.data))
-      .catch(err => console.error("Fetch error:", err));
+  /* ================= FETCH SUBSCRIPTIONS ================= */
+  const fetchSubs = async () => {
+    try {
+      const res = await api.get("/subscriptions");
+      setSubs(res.data);
+    } catch (err) {
+      console.error("Fetch error:", err);
+      alert("Failed to load subscriptions");
+    }
   };
 
   useEffect(() => {
     fetchSubs();
   }, []);
 
-  /* ---------- ACTIONS ---------- */
+  /* ================= ACTIONS ================= */
   const openAdd = () => {
     setFormData(emptyForm);
     setMode("add");
@@ -52,45 +53,53 @@ function Subscriptions() {
     setFormData(emptyForm);
   };
 
-  const deleteSub = id => {
+  const deleteSub = async id => {
     if (!window.confirm("Delete this subscription?")) return;
-    axios
-      .delete(`${API_URL}/${id}`)
-      .then(fetchSubs)
-      .catch(err => console.error("Delete error:", err));
+
+    try {
+      await api.delete(`/subscriptions/${id}`);
+      fetchSubs();
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("Delete failed");
+    }
   };
 
   const handleChange = e => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const submitForm = e => {
+  const submitForm = async e => {
     e.preventDefault();
 
-    if (mode === "add") {
-      axios
-        .post(API_URL, formData)
-        .then(() => {
-          closeForm();
-          fetchSubs();
-        })
-        .catch(err => console.error("Add error:", err));
-    }
+    try {
+      if (mode === "add") {
+        await api.post("/subscriptions", {
+          ...formData,
+          price: Number(formData.price),
+        });
+      }
 
-    if (mode === "edit") {
-      axios
-        .put(`${API_URL}/${formData.id}`, formData)
-        .then(() => {
-          closeForm();
-          fetchSubs();
-        })
-        .catch(err => console.error("Update error:", err));
+      if (mode === "edit") {
+        await api.put(`/subscriptions/${formData.id}`, {
+          ...formData,
+          price: Number(formData.price),
+        });
+      }
+
+      closeForm();
+      fetchSubs();
+    } catch (err) {
+      console.error("Save error:", err);
+      alert("Save failed");
     }
   };
 
-  /* ---------- UI ---------- */
+  /* ================= UI ================= */
   return (
     <div className="page">
+      {/* HEADER */}
       <div className="header">
         <h2>Your Subscriptions</h2>
         <button className="btn btn-success" onClick={openAdd}>
@@ -98,6 +107,7 @@ function Subscriptions() {
         </button>
       </div>
 
+      {/* TABLE */}
       <div className="table-wrapper">
         <table className="table align-middle">
           <thead>
@@ -113,6 +123,14 @@ function Subscriptions() {
           </thead>
 
           <tbody>
+            {subs.length === 0 && (
+              <tr>
+                <td colSpan="7" className="text-center muted">
+                  No subscriptions found
+                </td>
+              </tr>
+            )}
+
             {subs.map(s => (
               <tr key={s.id}>
                 <td>{s.name}</td>
