@@ -1,106 +1,108 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import Chart from "chart.js/auto";
+
+const API_URL = "https://subscription-dashboard-izic.onrender.com/subscriptions";
 
 function Dashboard() {
   const [subs, setSubs] = useState([]);
-  const chartRef = useRef(null);
-  const chartInstance = useRef(null);
 
   useEffect(() => {
     axios
-    axios.get("https://subscription-dashboard-izic.onrender.com/subscriptions")
-      .then(res => setSubs(res.data));
+      .get(API_URL)
+      .then(res => setSubs(res.data))
+      .catch(err => console.error("Dashboard fetch error:", err));
   }, []);
 
   const today = new Date();
 
-  /* ===== STATS ===== */
-  const active = subs.filter(s => s.status === "Active").length;
-  const expired = subs.filter(s => s.status === "Expired").length;
+  /* ===== BASIC STATS ===== */
+  const activeSubs = subs.filter(s => s.status === "Active");
+  const expiredSubs = subs.filter(s => s.status === "Expired");
 
-  const spend = subs
-    .filter(s => s.status === "Active")
-    .reduce((sum, s) => sum + Number(s.price), 0);
+  const totalSpend = activeSubs.reduce(
+    (sum, s) => sum + Number(s.price || 0),
+    0
+  );
+
+  const averageSpend =
+    activeSubs.length > 0
+      ? Math.round(totalSpend / activeSubs.length)
+      : 0;
 
   /* ===== EXPIRING SOON ===== */
-  const expiringSoon = subs
-    .filter(s => s.status === "Active")
+  const expiringSoon = activeSubs
     .map(s => {
-      const diff =
+      const daysLeft =
         (new Date(s.renewalDate) - today) / (1000 * 60 * 60 * 24);
-      return { ...s, daysLeft: Math.ceil(diff) };
+      return { ...s, daysLeft: Math.ceil(daysLeft) };
     })
     .filter(s => s.daysLeft >= 0 && s.daysLeft <= 7)
     .sort((a, b) => a.daysLeft - b.daysLeft);
 
-  /* ===== CHART ===== */
-  useEffect(() => {
-    if (!chartRef.current) return;
-
-    const categoryMap = {};
-    subs.forEach(s => {
-      if (s.status === "Active") {
-        categoryMap[s.category] =
-          (categoryMap[s.category] || 0) + Number(s.price);
-      }
-    });
-
-    if (chartInstance.current) {
-      chartInstance.current.destroy();
-    }
-
-    chartInstance.current = new Chart(chartRef.current, {
-      type: "bar",
-      data: {
-        labels: Object.keys(categoryMap),
-        datasets: [
-          {
-            label: "Monthly Spend (₹)",
-            data: Object.values(categoryMap),
-            backgroundColor: "#6366f1",
-            borderRadius: 6,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-        },
-        scales: {
-          y: { beginAtZero: true },
-        },
-      },
-    });
-  }, [subs]);
+  /* ===== CATEGORY USAGE ===== */
+  const categoryUsage = {};
+  activeSubs.forEach(s => {
+    categoryUsage[s.category] =
+      (categoryUsage[s.category] || 0) + Number(s.price);
+  });
 
   return (
     <div className="page">
+      {/* HEADER */}
       <div className="header">
         <div>
-          <span>Welcome back</span>
+          <span className="muted">Welcome back</span>
           <h2>Ayana</h2>
         </div>
       </div>
 
-      <div className="dashboard-layout">
-        <div>
-          <div className="cards">
-            <Stat title="Active Subscriptions" value={active} />
-            <Stat title="Monthly Spend" value={`₹ ${spend}`} />
-            <Stat title="Upcoming Renewals" value={expiringSoon.length} />
-            <Stat title="Expired Subscriptions" value={expired} />
-          </div>
+      {/* STATS */}
+      <div className="cards">
+        <Stat title="Active Subscriptions" value={activeSubs.length} />
+        <Stat title="Monthly Spend" value={`₹ ${totalSpend}`} />
+        <Stat title="Average Spend / Subscription" value={`₹ ${averageSpend}`} />
+        <Stat title="Expired Subscriptions" value={expiredSubs.length} />
+      </div>
 
-          <div className="table-wrapper" style={{ marginTop: 24 }}>
-            <h4 style={{ marginBottom: 16 }}>
-              Subscription Spend by Category
-            </h4>
-            <canvas ref={chartRef} height="120"></canvas>
-          </div>
+      <div className="dashboard-layout">
+        {/* ===== USAGE INDICATOR ===== */}
+        <div className="table-wrapper">
+          <h4 className="mb-3">Subscription Usage Overview</h4>
+
+          {Object.keys(categoryUsage).length === 0 ? (
+            <p className="muted">No active subscriptions</p>
+          ) : (
+            Object.entries(categoryUsage).map(([category, amount]) => {
+              const percentage = Math.min(
+                Math.round((amount / totalSpend) * 100),
+                100
+              );
+
+              return (
+                <div key={category} className="mb-3">
+                  <div className="d-flex justify-content-between">
+                    <strong>{category}</strong>
+                    <span>₹ {amount}</span>
+                  </div>
+
+                  <div className="progress">
+                    <div
+                      className="progress-bar"
+                      style={{
+                        width: `${percentage}%`,
+                        backgroundColor: "#6366f1",
+                      }}
+                    >
+                      {percentage}%
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
 
+        {/* ===== ALERT PANEL ===== */}
         <div className="alert-panel">
           <h4>⚠ Expiring Soon</h4>
 
@@ -127,7 +129,7 @@ function Dashboard() {
 function Stat({ title, value }) {
   return (
     <div className="card">
-      <p>{title}</p>
+      <p className="muted">{title}</p>
       <h3>{value}</h3>
     </div>
   );
