@@ -1,0 +1,193 @@
+{
+  "subscriptions": [
+    {
+      "id": "1",
+      "name": "Netflix",
+      "category": "OTT",
+      "billing": "Monthly",
+      "price": 499,
+      "renewalDate": "2026-02-25",
+      "status": "Active"
+    },
+    {
+      "id": "2",
+      "name": "Spotify",
+      "category": "Music",
+      "billing": "Monthly",
+      "price": 119,
+      "renewalDate": "2025-01-10",
+      "status": "Expired"
+    },
+    {
+      "id": "3",
+      "name": "Amazon Prime",
+      "category": "OTT",
+      "billing": "Yearly",
+      "price": 1499,
+      "renewalDate": "2026-12-15",
+      "status": "Active"
+    },
+    {
+      "id": "4",
+      "name": "YouTube Premium",
+      "category": "Video",
+      "billing": "Monthly",
+      "price": 129,
+      "renewalDate": "2026-03-05",
+      "status": "Active"
+    },
+    {
+      "id": "5",
+      "name": "Disney+ Hotstar",
+      "category": "OTT",
+      "billing": "Yearly",
+      "price": 899,
+      "renewalDate": "2026-08-20",
+      "status": "Active"
+    },
+    {
+      "id": "6",
+      "name": "Apple Music",
+      "category": "Music",
+      "billing": "Monthly",
+      "price": 99,
+      "renewalDate": "2025-02-01",
+      "status": "Expired"
+    },
+    {
+      "id": "7",
+      "name": "Google Drive",
+      "category": "Cloud",
+      "billing": "Yearly",
+      "price": 1300,
+      "renewalDate": "2026-11-12",
+      "status": "Active"
+    },
+    {
+      "id": "8",
+      "name": "Dropbox",
+      "category": "Cloud",
+      "billing": "Monthly",
+      "price": 799,
+      "renewalDate": "2025-01-18",
+      "status": "Expired"
+    },
+    {
+      "id": "9",
+      "name": "Notion",
+      "category": "Productivity",
+      "billing": "Yearly",
+      "price": 3500,
+      "renewalDate": "2026-06-10",
+      "status": "Active"
+    },
+    {
+      "id": "10",
+      "name": "GitHub Pro",
+      "category": "Development",
+      "billing": "Monthly",
+      "price": 400,
+      "renewalDate": "2026-04-02",
+      "status": "Active"
+    },
+    {
+      "id": "11",
+      "name": "Adobe Creative Cloud",
+      "category": "Design",
+      "billing": "Monthly",
+      "price": 1675,
+      "renewalDate": "2025-01-16",
+      "status": "Expired"
+    },
+    {
+      "id": "13",
+      "name": "Coursera Plus",
+      "category": "Education",
+      "billing": "Yearly",
+      "price": 3999,
+      "renewalDate": "2026-05-01",
+      "status": "Active"
+    },
+    {
+      "id": "14",
+      "name": "Udemy",
+      "category": "Education",
+      "billing": "Monthly",
+      "price": 699,
+      "renewalDate": "2025-02-10",
+      "status": "Expired"
+    },
+    {
+      "id": "15",
+      "name": "ChatGPT Plus",
+      "category": "AI",
+      "billing": "Monthly",
+      "price": 1700,
+      "renewalDate": "2026-03-01",
+      "status": "Active"
+    },
+    {
+      "id": "16",
+      "name": "Canva Pro",
+      "category": "Design",
+      "billing": "Yearly",
+      "price": 4999,
+      "renewalDate": "2026-07-14",
+      "status": "Active"
+    },
+    {
+      "id": "17",
+      "name": "LinkedIn Premium",
+      "category": "Career",
+      "billing": "Monthly",
+      "price": 1500,
+      "renewalDate": "2025-01-28",
+      "status": "Expired"
+    },
+    {
+      "id": "18",
+      "name": "Zoom Pro",
+      "category": "Communication",
+      "billing": "Monthly",
+      "price": 1200,
+      "renewalDate": "2026-02-18",
+      "status": "Active"
+    },
+    {
+      "id": "19",
+      "name": "Microsoft 365",
+      "category": "Productivity",
+      "billing": "Yearly",
+      "price": 6199,
+      "renewalDate": "2026-10-30",
+      "status": "Active"
+    },
+    {
+      "id": "20",
+      "name": "AWS Free Tier",
+      "category": "Cloud",
+      "billing": "Monthly",
+      "price": 0,
+      "renewalDate": "2025-01-15",
+      "status": "Expired"
+    },
+    {
+      "id": "",
+      "name": "sportify",
+      "category": "music",
+      "billing": "Monthly",
+      "price": "199",
+      "renewalDate": "2026-01-15",
+      "status": "Active"
+    },
+    {
+      "id": "",
+      "name": "Figma",
+      "category": "Design",
+      "billing": "Monthly",
+      "price": "99",
+      "renewalDate": "2026-01-15",
+      "status": "Active"
+    }
+  ]
+}
